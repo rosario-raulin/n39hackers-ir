@@ -17,9 +17,9 @@ public class ReutersContentHandler extends DefaultHandler {
 
     private String currentTag;
 
-    public ReutersContentHandler() {
+    public ReutersContentHandler(List<ReutersArticle> articleList) {
         this.articleBuilder = new ReutersArticleBuilder();
-        this.articleList = new ArrayList<>();
+        this.articleList = articleList;
         this.currentTag = "";
     }
 
@@ -27,7 +27,7 @@ public class ReutersContentHandler extends DefaultHandler {
     public void endDocument() throws SAXException {
         // TODO: call callback
         for (final ReutersArticle article : articleList) {
-            System.out.println(article.getId() + ": " + article.getTitle());
+            System.out.println(article.getId() + ": " + article.getDate());
         }
     }
 

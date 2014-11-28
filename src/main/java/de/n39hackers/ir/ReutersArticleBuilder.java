@@ -42,7 +42,7 @@ public class ReutersArticleBuilder {
 
     public ReutersArticle build() throws ParseException {
         // Sample date format: 26-FEB-1987 15:02:20.00
-        SimpleDateFormat dateParser = new SimpleDateFormat("DD-MMM-yyyy HH:mm:ss.SS");
+        SimpleDateFormat dateParser = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.SS");
         Date date = dateParser.parse(currDate.toString());
         int id = Integer.parseInt(currId);
 
