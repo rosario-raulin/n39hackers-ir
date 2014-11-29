@@ -60,6 +60,7 @@ public class QueryCommand implements Command {
             QueryIndex currentIndex = queryIndexList.getCurrentIndex();
             if (currentIndex == null) {
                 System.err.println("No index generated or selected yet.");
+                analyzer.close();
                 return;
             }
 
