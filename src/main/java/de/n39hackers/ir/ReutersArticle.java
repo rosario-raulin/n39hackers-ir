@@ -3,7 +3,7 @@ package de.n39hackers.ir;
 import java.util.Date;
 
 /**
- * Created by Rosario on 28/11/14.
+ * Created by n39hackers on 28/11/14.
  *
  * This class represents a parsed article from the given XML file.
  */

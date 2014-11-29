@@ -1,12 +1,10 @@
 package de.n39hackers.ir;
 
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Scanner;
 
 /**
- * Created by Rosario on 28/11/14.
+ * Created by n39hackers on 28/11/14.
  *
  * The REPL (read-eval-print loop) is the main user interface. It prints out
  * helpful instruction how to use the program and parses the user input to call
@@ -39,7 +37,6 @@ public class REPL {
     public void run() {
         System.out.println("Welcome to n39hacker's awesome search engine!");
         System.out.println();
-        Scanner scanner = new Scanner(System.in);
 
         while (true) {
             try {
@@ -48,7 +45,7 @@ public class REPL {
 
                 // Wait for user's input
                 System.out.print(">> ");
-                int actionInputOption = scanner.nextInt();
+                int actionInputOption = UIScanner.getInstance().nextInt();
 
                 if (actionInputOption >= commands.size()) {
                     System.err.println("This is not a valid action.");
@@ -56,10 +53,8 @@ public class REPL {
                     Command toCall = commands.get(actionInputOption);
                     toCall.run(queryIndexList, reutersDocuments);
                 }
-            } catch (InputMismatchException e) {
+            } catch (NumberFormatException e) {
                 System.err.println("This is not a valid action.");
-                scanner.reset();
-                scanner.nextLine();
             }
         }
     }
@@ -115,17 +110,20 @@ public class REPL {
 
             @Override
             public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
-                Scanner scanner = new Scanner(System.in);
-
                 System.out.println(queryIndexList);
 
-                int choice = scanner.nextInt();
-                if (choice >= queryIndexList.size()) {
-                    System.err.println("Wrong choice!");
-                    return;
-                }
+                try {
+                    int indexChoice = UIScanner.getInstance().nextInt();
 
-                queryIndexList.setCurrentIndex(choice);
+                    if (indexChoice < 0 || indexChoice >= queryIndexList.size()) {
+                        System.err.println("Wrong choice!");
+                        return;
+                    }
+
+                    queryIndexList.setCurrentIndex(indexChoice);
+                } catch (NumberFormatException e) {
+                    System.err.println("This is not a valid search index!");
+                }
             }
         };
 

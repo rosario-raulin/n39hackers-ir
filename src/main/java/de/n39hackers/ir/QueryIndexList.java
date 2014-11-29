@@ -1,8 +1,7 @@
 package de.n39hackers.ir;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  *
@@ -12,19 +11,22 @@ import java.util.List;
  */
 public class QueryIndexList {
 
-    private final List<QueryIndex> indices;
+    private final Set<QueryIndex> indices;
     private QueryIndex currentIndex;
 
     public QueryIndexList() {
-        this.indices = new ArrayList<QueryIndex>();
+        // A LinkedHashSet provides a deterministic iteration order:
+        // The items are returned in the order they were inserted.
+        // We need this to set the index later on (see setCurrentIndex(int)).
+        this.indices = new LinkedHashSet<QueryIndex>();
     }
 
     public void add(QueryIndex index) {
         indices.add(index);
     }
 
-    public List<QueryIndex> getIndices() {
-        return Collections.unmodifiableList(indices);
+    public Iterable<QueryIndex> getIndices() {
+        return indices;
     }
 
     public QueryIndex getCurrentIndex() {
@@ -32,7 +34,7 @@ public class QueryIndexList {
     }
 
     public void setCurrentIndex(int index) {
-        this.currentIndex = indices.get(index);
+        this.currentIndex = indices.toArray(new QueryIndex[0])[index];
     }
 
     public int size() {

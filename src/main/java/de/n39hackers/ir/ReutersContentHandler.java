@@ -5,11 +5,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Rosario on 28/11/14.
+ * Created by n39hackers on 28/11/14.
  *
  * This is JAXP callback class used for XML parsing. During the parsing
  * process we generate a list of articles that we can later use for indexing.

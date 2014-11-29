@@ -1,10 +1,12 @@
 package de.n39hackers.ir;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Created by Rosario on 28/11/14.
+ * Created by n39hackers on 28/11/14.
  *
  * This Command builds an index for a given set of attributes using Apache Lucene.
  * We always store all attributes of ReutersArticle instances (to retrieve them later on)
@@ -29,8 +31,7 @@ public class IndexBuilderCommand implements Command {
         printIndexOptions();
 
         try {
-            Scanner scanner = new Scanner(System.in);
-            int index = scanner.nextInt();
+            int index = UIScanner.getInstance().nextInt();
             Set<String> toIndex = new HashSet<>();
 
             switch (index) {
@@ -55,7 +56,7 @@ public class IndexBuilderCommand implements Command {
 
             QueryIndex newIndex = QueryIndex.buildIndex(toIndex, articles);
             queryIndexList.add(newIndex);
-        } catch (InputMismatchException e) {
+        } catch (NumberFormatException e) {
             System.err.println("Illegal index option.");
         } catch (IOException e) {
             e.printStackTrace();

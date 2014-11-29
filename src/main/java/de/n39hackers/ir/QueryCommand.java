@@ -13,7 +13,6 @@ import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Created by n39hackers on 28/11/14.
@@ -25,8 +24,25 @@ public class QueryCommand implements Command {
 
     private String getQuery() {
         System.out.print("query >> ");
-        Scanner scanner = new Scanner(System.in);
-        return scanner.nextLine();
+        return UIScanner.getInstance().nextLine();
+    }
+
+    private int getNumberOfResults() {
+        System.out.println("Please enter the number of results you'd like to see:");
+
+        int numberOfResults = -1;
+        while (numberOfResults < 0) {
+            System.out.print(">> ");
+            try {
+                numberOfResults = UIScanner.getInstance().nextInt();
+                if (numberOfResults < 0) {
+                    System.err.println("Can't print a negative number of results, please make a valid input!");
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("This is not a number. Please enter the number of results you'd like to see!");
+            }
+        }
+        return numberOfResults;
     }
 
     private void printDoc(int rank, Document document, float score) {
@@ -47,19 +63,18 @@ public class QueryCommand implements Command {
                 return;
             }
 
-            String[] fields = currentIndex.getFields().toArray(new String[0]);
+            String[] fields = currentIndex.getFieldsAsArray();
 
             DirectoryReader reader = DirectoryReader.open(currentIndex.getDirectory());
             IndexSearcher searcher = new IndexSearcher(reader);
             QueryParser queryParser = new MultiFieldQueryParser(fields, analyzer);
+
             String queryString = getQuery();
-
             System.out.println("Using search query \"" + queryString + "\"");
-
             Query query = queryParser.parse(queryString);
 
-            // TODO: let the user decide how many results should be returned
-            ScoreDoc[] hits = searcher.search(query, 10).scoreDocs;
+            int numberOfResults = getNumberOfResults();
+            ScoreDoc[] hits = searcher.search(query, numberOfResults).scoreDocs;
 
             System.out.println(hits.length + " matches:");
             System.out.printf("rank\tid\tscore\ttitle\n");
@@ -69,9 +84,7 @@ public class QueryCommand implements Command {
             }
 
             reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }

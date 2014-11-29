@@ -10,7 +10,10 @@ import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * QueryIndex captures Apache Lucene's index class (Directory) and the fields that have been used for index
@@ -25,15 +28,15 @@ public class QueryIndex {
     private static String[] ALL_FIELDS = {"id", "title", "body", "date"};
 
     private final Directory directory;
-    private final List<String> fields;
+    private final Set<String> fields;
 
-    private QueryIndex(final Directory directory, final List<String> fields) {
+    private QueryIndex(final Directory directory, final Set<String> fields) {
         this.directory = directory;
         this.fields = fields;
     }
 
-    public List<String> getFields() {
-        return Collections.unmodifiableList(fields);
+    public String[] getFieldsAsArray() {
+        return fields.toArray(new String[0]);
     }
 
     public Directory getDirectory() {
@@ -51,15 +54,36 @@ public class QueryIndex {
         return outputBuilder.toString();
     }
 
+    // Two query indices are considered equal if and only if they index the same fields
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) return false;
+        if (other == this) return true;
+        if (other instanceof QueryIndex) {
+            QueryIndex otherIndex = (QueryIndex)other;
+            return otherIndex.fields.equals(this.fields);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hashValue = 0;
+
+        for (String field : fields) {
+            hashValue += field.hashCode();
+        }
+
+        return 23 * hashValue;
+    }
+
     // Factory method to create an index from a given set of index fields
     public static QueryIndex buildIndex(Set<String> toIndex, List<ReutersArticle> articles) throws IOException {
         Analyzer analyzer = new StandardAnalyzer();
 
         Directory directory = new RAMDirectory();
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, analyzer);
-
-
-        List<String> indexedFields = new ArrayList<>();
 
         Map<String, FieldType> types = new HashMap<>();
         for (String fieldName : ALL_FIELDS) {
@@ -68,7 +92,6 @@ public class QueryIndex {
                 types.put(fieldName, StoredField.TYPE);
             } else {
                 // index attribute and store
-                indexedFields.add(fieldName);
                 types.put(fieldName, TextField.TYPE_STORED);
             }
         }
@@ -91,6 +114,6 @@ public class QueryIndex {
 
         writer.close();
 
-        return new QueryIndex(directory, indexedFields);
+        return new QueryIndex(directory, toIndex);
     }
 }
