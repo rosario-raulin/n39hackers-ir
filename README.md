@@ -10,24 +10,18 @@ the command line like this:
 That puts you into our REPL (read-eval-print loop). It is the main user
 interface element and hopefully self-explanatory. The output will look like
 
-> Welcome to n39hacker's awesome search engine!
-> 
-> 
-> Your options are:
->
-> [0] Quit
->
-> [1] Print help
-> 
-> [2] Build index
-> 
-> [3] Select index
->
-> [4] Query
->
-> Current index: none
-> 
-> Available indices: 
+```
+Welcome to n39hacker's awesome search engine!
+
+Your options are:
+[0] Quit
+[1] Print help
+[2] Build index
+[3] Select index
+[4] Query
+Current index: none
+Available indices: 
+```
 
 Use 2 to build the first index. You can build an index for a single field or
 for all of them. Just choose one of the options.
