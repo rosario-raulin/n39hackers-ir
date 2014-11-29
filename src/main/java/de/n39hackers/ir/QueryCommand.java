@@ -12,6 +12,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -37,28 +38,28 @@ public class QueryCommand implements Command {
     }
 
     @Override
-    public void run(State state) {
+    public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
         Analyzer analyzer = new StandardAnalyzer();
         try {
-            DirectoryReader reader = DirectoryReader.open(state.getCurrentDirectory());
-            IndexSearcher searcher = new IndexSearcher(reader);
-
-            String[] fields;
-            if (state.getCurrentChoice() == State.ALL_ATTRIBUTES) {
-                fields = state.getIndexedAttributes().toArray(new String[0]);
-            } else {
-                fields = new String[]{state.getIndexAttribute()};
+            QueryIndex currentIndex = queryIndexList.getCurrentIndex();
+            if (currentIndex == null) {
+                System.err.println("No index generated or selected yet.");
+                return;
             }
 
-            QueryParser qparser = new MultiFieldQueryParser(fields, analyzer);
+            String[] fields = currentIndex.getFields().toArray(new String[0]);
+
+            DirectoryReader reader = DirectoryReader.open(currentIndex.getDirectory());
+            IndexSearcher searcher = new IndexSearcher(reader);
+            QueryParser queryParser = new MultiFieldQueryParser(fields, analyzer);
             String queryString = getQuery();
 
             System.out.println("Using search query \"" + queryString + "\"");
 
-            Query query = qparser.parse(queryString);
+            Query query = queryParser.parse(queryString);
 
             // TODO: let the user decide how many results should be returned
-            ScoreDoc[] hits = searcher.search(query, 1000).scoreDocs;
+            ScoreDoc[] hits = searcher.search(query, 10).scoreDocs;
 
             System.out.println(hits.length + " matches:");
             System.out.printf("rank\tid\tscore\ttitle\n");
@@ -73,5 +74,10 @@ public class QueryCommand implements Command {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getName() {
+        return "Query";
     }
 }

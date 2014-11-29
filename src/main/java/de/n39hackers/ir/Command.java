@@ -1,5 +1,7 @@
 package de.n39hackers.ir;
 
+import java.util.List;
+
 /**
  * Created by Rosario on 28/11/14.
  *
@@ -7,5 +9,6 @@ package de.n39hackers.ir;
  *
  */
 public interface Command {
-    public void run(State state);
+    public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles);
+    public String getName();
 }

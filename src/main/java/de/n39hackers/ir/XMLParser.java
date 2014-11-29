@@ -23,10 +23,10 @@ public class XMLParser {
     public XMLParser(String filePath, List<ReutersArticle> articleList) {
         this.filePath = filePath;
         this.articleList = articleList;
-        run();
+        parse();
     }
 
-    public void run() {
+    private void parse() {
         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         saxParserFactory.setNamespaceAware(true);
 

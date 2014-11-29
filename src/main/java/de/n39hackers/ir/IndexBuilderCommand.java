@@ -23,6 +23,11 @@ public class IndexBuilderCommand implements Command {
 
     private static String[] ALL_FIELDS = {"id", "title", "body", "date"};
 
+    @Override
+    public String getName() {
+        return "Build index";
+    }
+
     private void printIndexOptions() {
         System.out.println("[0] Use Title");
         System.out.println("[1] Use Date");
@@ -30,12 +35,14 @@ public class IndexBuilderCommand implements Command {
         System.out.println("[3] All");
     }
 
-    private Directory buildIndex(Set<String> toIndex, State state) {
+    private void buildIndex(Set<String> toIndex, List<ReutersArticle> articles, QueryIndexList queryIndexList) {
         Analyzer analyzer = new StandardAnalyzer();
 
         Directory directory = new RAMDirectory();
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, analyzer);
-        IndexWriter writer;
+
+
+        List<String> indexedFields = new ArrayList<>();
 
         Map<String, FieldType> types = new HashMap<>();
         for (String fieldName : ALL_FIELDS) {
@@ -44,40 +51,39 @@ public class IndexBuilderCommand implements Command {
                 types.put(fieldName, StoredField.TYPE);
             } else {
                 // index attribute and store
+                indexedFields.add(fieldName);
                 types.put(fieldName, TextField.TYPE_STORED);
             }
         }
 
-        StringBuilder indexName = new StringBuilder();
-        indexName.append("{ ");
-        for (String s : toIndex) {
-            indexName.append(s).append(" ");
-        }
-        indexName.append("}");
-        state.getIndexedAttributes().add(indexName.toString());
-
         try {
-            writer = new IndexWriter(directory, config);
-            for (ReutersArticle article : state.getArticleList()) {
+            IndexWriter writer = new IndexWriter(directory, config);
+
+            for (ReutersArticle article : articles) {
                 Document doc = new Document();
 
                 doc.add(new Field("id", article.getId() + "", types.get("id")));
                 doc.add(new Field("title", article.getTitle(), types.get("title")));
                 doc.add(new Field("body", article.getBody(), types.get("body")));
-                doc.add(new Field("date", DateTools.dateToString(article.getDate(), DateTools.Resolution.DAY), types.get("date")));
+
+                // allow range queries
+                String dateString = DateTools.dateToString(article.getDate(), DateTools.Resolution.DAY);
+                doc.add(new Field("date", dateString, types.get("date")));
 
                 writer.addDocument(doc);
             }
+
+            QueryIndex newIndex = new QueryIndex(directory, indexedFields);
+            queryIndexList.add(newIndex);
+
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return directory;
     }
 
     @Override
-    public void run(State state) {
+    public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
         printIndexOptions();
 
         try {
@@ -105,7 +111,7 @@ public class IndexBuilderCommand implements Command {
                     return;
             }
 
-            state.getIndices().add(buildIndex(toIndex, state));
+            buildIndex(toIndex, articles, queryIndexList);
         } catch (InputMismatchException e) {
             System.err.println("Illegal index option.");
         }

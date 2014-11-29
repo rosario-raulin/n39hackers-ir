@@ -11,21 +11,26 @@ import java.util.*;
  */
 public class REPL {
 
-    private final List<Command> options;
-    private State state;
+    private final List<Command> commands;
+    private final List<ReutersArticle> reutersDocuments;
+    private final QueryIndexList queryIndexList;
 
     public REPL(List<Command> options) {
-        this.options = options;
-        this.state = new State();
+        this.commands = options;
+        this.queryIndexList = new QueryIndexList();
+        this.reutersDocuments = new ArrayList<>();
+
+        new XMLParser("reuters.xml", this.reutersDocuments);
     }
 
-    private static void printOptions() {
+    private static void printOptions(final List<Command> commands) {
         System.out.println("Your options are:");
-        System.out.println("[0] Quit");
-        System.out.println("[1] Print help");
-        System.out.println("[2] Build index");
-        System.out.println("[3] Select index");
-        System.out.println("[4] Query");
+
+        int i = 0;
+        for (Command command : commands) {
+            System.out.printf("[%d] %s\n", i, command.getName());
+            ++i;
+        }
     }
 
     public void run() {
@@ -35,31 +40,18 @@ public class REPL {
 
         while (true) {
             try {
-                printOptions();
-                int currentChoice = state.getCurrentChoice();
-
-                if (currentChoice != State.NOT_INITIALIZED) {
-                    System.out.println("Chosen index: " + state.getIndexedAttributes().get(currentChoice));
-                }
-
-                System.out.print("Available indices: ");
-                if (state.getIndexedAttributes().size() == 0) {
-                    System.out.println("none");
-                } else {
-                    for (String i : state.getIndexedAttributes()) {
-                        System.out.print(i + " ");
-                    }
-                }
+                printOptions(this.commands);
+                System.out.println(queryIndexList);
 
                 // Wait for user's input
                 System.out.print(">> ");
                 int actionInputOption = scanner.nextInt();
 
-                if (actionInputOption >= options.size()) {
+                if (actionInputOption >=  commands.size()) {
                     System.err.println("This is not a valid action.");
                 } else {
-                    Command toCall = options.get(actionInputOption);
-                    toCall.run(state);
+                    Command toCall = commands.get(actionInputOption);
+                    toCall.run(queryIndexList, reutersDocuments);
                 }
             } catch (InputMismatchException e) {
                 System.err.println("This is not a valid action.");
@@ -84,44 +76,55 @@ public class REPL {
         a number to an array index.
      */
     public static void main(String[] args) {
-        Command quitCommand = new Command() {
+        final List<Command> commands = new ArrayList<>();
+
+        final Command quitCommand = new Command() {
             @Override
-            public void run(State state) {
+            public String getName() {
+                return "Quit";
+            }
+
+            @Override
+            public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
                 System.out.println("Bye!");
                 System.exit(0);
             }
         };
 
-        Command helpCommand = new Command() {
+        final Command helpCommand = new Command() {
             @Override
-            public void run(State state) {
-                REPL.printOptions();
+            public String getName() {
+                return "Print help";
+            }
+
+            @Override
+            public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
+                printOptions(commands);
             }
         };
 
 
-        Command selectIndexCommand = new Command() {
+        final Command selectIndexCommand = new Command() {
             @Override
-            public void run(State state) {
+            public String getName() {
+                return "Select index";
+            }
+
+            @Override
+            public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
                 Scanner scanner = new Scanner(System.in);
 
-                int i = 0;
-                for (String attr : state.getIndexedAttributes()) {
-                    System.out.println("[" + i + "] " + attr);
-                    ++i;
-                }
+                System.out.println(queryIndexList);
 
                 int choice = scanner.nextInt();
-                if (choice >= state.getIndexedAttributes().size()) {
+                if (choice >= queryIndexList.size()) {
                     System.err.println("Wrong choice!");
                     return;
                 }
 
-                state.setCurrentChoice(choice);
+                queryIndexList.setCurrentIndex(choice);
             }
         };
-
-        List<Command> commands = new ArrayList<>();
 
         commands.add(quitCommand);
         commands.add(helpCommand);
