@@ -5,7 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by Rosario on 29/11/14.
+ *
+ * QueryIndexList keeps track of all indices (instances of QueryIndex) and the current index used for querying.
+ *
+ * Created by n39hackers on 29/11/14.
  */
 public class QueryIndexList {
 

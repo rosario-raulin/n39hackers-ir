@@ -1,6 +1,9 @@
 package de.n39hackers.ir;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Rosario on 28/11/14.
@@ -47,7 +50,7 @@ public class REPL {
                 System.out.print(">> ");
                 int actionInputOption = scanner.nextInt();
 
-                if (actionInputOption >=  commands.size()) {
+                if (actionInputOption >= commands.size()) {
                     System.err.println("This is not a valid action.");
                 } else {
                     Command toCall = commands.get(actionInputOption);

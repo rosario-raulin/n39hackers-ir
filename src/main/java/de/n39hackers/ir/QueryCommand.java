@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created by Rosario on 28/11/14.
+ * Created by n39hackers on 28/11/14.
  *
  * We use QueryCommand to retrieve documents with a query entered by the user. We support
  * date range queries and return the top n results including their score.
