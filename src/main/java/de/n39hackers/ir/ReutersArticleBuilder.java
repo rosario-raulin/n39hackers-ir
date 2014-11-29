@@ -6,6 +6,9 @@ import java.util.Date;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * This class follows the Builder pattern to create new instances of ReutersArticle. It is used
+ * during XML parsing.
  */
 public class ReutersArticleBuilder {
 

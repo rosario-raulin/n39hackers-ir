@@ -1,25 +1,25 @@
 package de.n39hackers.ir;
 
-import org.apache.lucene.store.Directory;
-
 import java.util.*;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * The REPL (read-eval-print loop) is the main user interface. It prints out
+ * helpful instruction how to use the program and parses the user input to call
+ * the appropriate commands.
  */
 public class REPL {
 
-    private final List<Callable> options;
+    private final List<Command> options;
     private State state;
 
-    public REPL(List<Callable> options) {
+    public REPL(List<Command> options) {
         this.options = options;
         this.state = new State();
     }
 
     private static void printOptions() {
-        System.out.println("Welcome to n39hacker's awesome search engine!");
-        System.out.println("");
         System.out.println("Your options are:");
         System.out.println("[0] Quit");
         System.out.println("[1] Print help");
@@ -29,40 +29,62 @@ public class REPL {
     }
 
     public void run() {
+        System.out.println("Welcome to n39hacker's awesome search engine!");
+        System.out.println();
         Scanner scanner = new Scanner(System.in);
-        printOptions();
 
         while (true) {
             try {
+                printOptions();
                 int currentChoice = state.getCurrentChoice();
-                if (currentChoice >= 0) {
-                    System.out.println("Current Index: " + state.getIndexedAttributes().get(currentChoice));
-                }
-                System.out.print("Indicies: ");
-                for (String i : state.getIndexedAttributes()) {
-                    System.out.print(i + ", ");
-                }
-                System.out.println();
 
-                System.out.print(">> ");
-                int index = scanner.nextInt();
+                if (currentChoice != State.NOT_INITIALIZED) {
+                    System.out.println("Chosen index: " + state.getIndexedAttributes().get(currentChoice));
+                }
 
-                if (index >= options.size()) {
-                    System.err.println("This is not a valid option.");
+                System.out.print("Available indices: ");
+                if (state.getIndexedAttributes().size() == 0) {
+                    System.out.println("none");
                 } else {
-                    Callable toCall = options.get(index);
+                    for (String i : state.getIndexedAttributes()) {
+                        System.out.print(i + " ");
+                    }
+                }
+
+                // Wait for user's input
+                System.out.print(">> ");
+                int actionInputOption = scanner.nextInt();
+
+                if (actionInputOption >= options.size()) {
+                    System.err.println("This is not a valid action.");
+                } else {
+                    Command toCall = options.get(actionInputOption);
                     toCall.run(state);
                 }
             } catch (InputMismatchException e) {
-                System.err.println("This is not a valid option.");
+                System.err.println("This is not a valid action.");
                 scanner.reset();
                 scanner.nextLine();
             }
         }
     }
 
+    /*
+        We use a list of Commands to map the user's choice with an action.
+        Every Command has a run() method that gets a State object with shared
+        context. The user enters a number that stands for an action and that
+        number is exactly the position in our command list.
+
+        Some Commands are very short and have thus been created as anonymous
+        instances. More complex Commands like building the index or Querying
+        with a given string are implemented in separate classes.
+
+        This approach has two benefits: It is very easy to add new Commands and
+        we don't have to write a parser for string input by the user. We can simply map
+        a number to an array index.
+     */
     public static void main(String[] args) {
-        Callable quitCommand = new Callable() {
+        Command quitCommand = new Command() {
             @Override
             public void run(State state) {
                 System.out.println("Bye!");
@@ -70,7 +92,7 @@ public class REPL {
             }
         };
 
-        Callable helpCommand = new Callable() {
+        Command helpCommand = new Command() {
             @Override
             public void run(State state) {
                 REPL.printOptions();
@@ -78,7 +100,7 @@ public class REPL {
         };
 
 
-        Callable selectIndexCommand = new Callable() {
+        Command selectIndexCommand = new Command() {
             @Override
             public void run(State state) {
                 Scanner scanner = new Scanner(System.in);
@@ -99,10 +121,7 @@ public class REPL {
             }
         };
 
-
-        List<Directory> indicies = new ArrayList<>();
-        List<Callable> commands = new ArrayList<>();
-        List<String> indexed = new ArrayList<>();
+        List<Command> commands = new ArrayList<>();
 
         commands.add(quitCommand);
         commands.add(helpCommand);

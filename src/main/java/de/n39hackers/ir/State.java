@@ -7,8 +7,13 @@ import java.util.List;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * An object that represents a State and is shared between different Commands.
  */
 public class State {
+    public final static int NOT_INITIALIZED = -1;
+    public final static int ALL_ATTRIBUTES = -2;
+
     private final List<String> indexedAttributes;
     private final List<Directory> indices;
     private final List<ReutersArticle> articleList;
@@ -21,7 +26,7 @@ public class State {
 
         this.indexedAttributes = new ArrayList<>();
         this.indices = new ArrayList<>();
-        this.currentChoice = -1;
+        this.currentChoice = NOT_INITIALIZED;
     }
 
     public List<String> getIndexedAttributes() {
@@ -41,7 +46,10 @@ public class State {
     }
 
     public Directory getCurrentDirectory() {
-        if (currentChoice < 0) {
+        if (currentChoice == NOT_INITIALIZED) {
+          throw new RuntimeException("currentChoice not initialized!");
+        } else if (currentChoice == ALL_ATTRIBUTES) {
+            // use first index/directory
             return indices.get(0);
         } else {
             return indices.get(currentChoice);
@@ -53,9 +61,8 @@ public class State {
     }
 
     public String getIndexAttribute() {
-        if (currentChoice < 0) {
-            System.err.println("YOU SHOULD NEVER CALL THIS METHOD!!!");
-            return null;
+        if (currentChoice == NOT_INITIALIZED || currentChoice == ALL_ATTRIBUTES) {
+            throw new RuntimeException("currentChoice set to all or not initialized!");
         }
         return indexedAttributes.get(currentChoice);
     }

@@ -14,8 +14,12 @@ import java.util.*;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * This Command builds an index for a given set of attributes using Apache Lucene.
+ * We always store all attributes of ReutersArticle instances (to retrieve them later on)
+ * but only use the specified attributes for indexing.
  */
-public class IndexBuilderCommand implements Callable {
+public class IndexBuilderCommand implements Command {
 
     private static String[] ALL_FIELDS = {"id", "title", "body", "date"};
 
@@ -36,12 +40,21 @@ public class IndexBuilderCommand implements Callable {
         Map<String, FieldType> types = new HashMap<>();
         for (String fieldName : ALL_FIELDS) {
             if (!toIndex.contains(fieldName)) {
+                // don't index, just store
                 types.put(fieldName, StoredField.TYPE);
             } else {
-                state.getIndexedAttributes().add(fieldName);
+                // index attribute and store
                 types.put(fieldName, TextField.TYPE_STORED);
             }
         }
+
+        StringBuilder indexName = new StringBuilder();
+        indexName.append("{ ");
+        for (String s : toIndex) {
+            indexName.append(s).append(" ");
+        }
+        indexName.append("}");
+        state.getIndexedAttributes().add(indexName.toString());
 
         try {
             writer = new IndexWriter(directory, config);
@@ -51,7 +64,7 @@ public class IndexBuilderCommand implements Callable {
                 doc.add(new Field("id", article.getId() + "", types.get("id")));
                 doc.add(new Field("title", article.getTitle(), types.get("title")));
                 doc.add(new Field("body", article.getBody(), types.get("body")));
-                doc.add(new Field("date", article.getDate().toString(), types.get("date")));
+                doc.add(new Field("date", DateTools.dateToString(article.getDate(), DateTools.Resolution.DAY), types.get("date")));
 
                 writer.addDocument(doc);
             }

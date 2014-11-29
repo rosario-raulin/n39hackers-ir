@@ -11,6 +11,9 @@ import java.util.List;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * This class uses the JAXP API to parse the XML file. It prepares the parsing
+ * process and calls ReutersContentHandler to do the rest.
  */
 public class XMLParser {
 

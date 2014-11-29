@@ -16,8 +16,12 @@ import java.util.Scanner;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * We use QueryCommand to retrieve documents with a query entered by the user. We support
+ * date range queries and return the top n results including their score.
  */
-public class QueryCommand implements Callable {
+public class QueryCommand implements Command {
+
     private String getQuery() {
         System.out.print("query >> ");
         Scanner scanner = new Scanner(System.in);
@@ -40,7 +44,7 @@ public class QueryCommand implements Callable {
             IndexSearcher searcher = new IndexSearcher(reader);
 
             String[] fields;
-            if (state.getCurrentChoice() == -2) {
+            if (state.getCurrentChoice() == State.ALL_ATTRIBUTES) {
                 fields = state.getIndexedAttributes().toArray(new String[0]);
             } else {
                 fields = new String[]{state.getIndexAttribute()};
@@ -52,7 +56,9 @@ public class QueryCommand implements Callable {
             System.out.println("Using search query \"" + queryString + "\"");
 
             Query query = qparser.parse(queryString);
-            ScoreDoc[] hits = searcher.search(query, 10).scoreDocs;
+
+            // TODO: let the user decide how many results should be returned
+            ScoreDoc[] hits = searcher.search(query, 1000).scoreDocs;
 
             System.out.println(hits.length + " matches:");
             System.out.printf("rank\tid\tscore\ttitle\n");

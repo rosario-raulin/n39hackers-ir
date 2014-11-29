@@ -10,6 +10,9 @@ import java.util.List;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * This is JAXP callback class used for XML parsing. During the parsing
+ * process we generate a list of articles that we can later use for indexing.
  */
 public class ReutersContentHandler extends DefaultHandler {
     private final ReutersArticleBuilder articleBuilder;
@@ -21,14 +24,6 @@ public class ReutersContentHandler extends DefaultHandler {
         this.articleBuilder = new ReutersArticleBuilder();
         this.articleList = articleList;
         this.currentTag = "";
-    }
-
-    @Override
-    public void endDocument() throws SAXException {
-        // TODO: call callback
-        for (final ReutersArticle article : articleList) {
-            System.out.println(article.getId() + ": " + article.getDate());
-        }
     }
 
     @Override

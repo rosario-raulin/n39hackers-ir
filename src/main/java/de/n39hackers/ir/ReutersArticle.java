@@ -4,6 +4,8 @@ import java.util.Date;
 
 /**
  * Created by Rosario on 28/11/14.
+ *
+ * This class represents a parsed article from the given XML file.
  */
 public class ReutersArticle {
     private final int id;
