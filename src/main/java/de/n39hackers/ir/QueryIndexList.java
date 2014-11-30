@@ -41,6 +41,10 @@ public class QueryIndexList {
         return indices.size();
     }
 
+    public boolean isEmpty() {
+        return indices.isEmpty();
+    }
+
     @Override
     public String toString() {
         StringBuffer outputBuffer = new StringBuffer();

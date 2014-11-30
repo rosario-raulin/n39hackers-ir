@@ -110,13 +110,18 @@ public class REPL {
 
             @Override
             public void run(QueryIndexList queryIndexList, List<ReutersArticle> articles) {
+                if (queryIndexList.isEmpty()) {
+                    System.err.println("There is no query index yet, build one first!");
+                    return;
+                }
+
                 System.out.println(queryIndexList);
 
                 try {
                     int indexChoice = UIScanner.getInstance().nextInt();
 
                     if (indexChoice < 0 || indexChoice >= queryIndexList.size()) {
-                        System.err.println("Wrong choice!");
+                        System.err.println("Index too big or negative, please enter a valid number!");
                         return;
                     }
 

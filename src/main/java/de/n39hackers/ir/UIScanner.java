@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * Created by n39hackers on 29/11/14.
  *
- * A simple wrapper class for java.util.Scanner. Be basically introduce blocking for nextLine().
+ * A simple wrapper class for java.util.Scanner. We basically introduce blocking for nextLine().
  *
  */
 public class UIScanner {
